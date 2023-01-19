@@ -4,7 +4,7 @@
 words = []
 sorted_words = []
 
-with open('words', 'r') as f:
+with open('/usr/share/dict/words', 'r') as f:
     words = f.read().splitlines()
 
 words.sort(key=len, reverse=True)
