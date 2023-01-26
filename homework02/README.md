@@ -6,11 +6,11 @@ In this assignment, we are simulating a robotic vehicle on Mars that is investig
 
 ## Part 1
 
-`generate_sites.py` 
+`generate_sites.py` is the python script that helps set up the simulation by randomly generating characteristics for the 5 landing sites and puts all of this information in a .json file called `landing_sites.json`. For each landing site, the script assigns a random latitude between 16.0 and 18.0 degrees, a longitude between 82.0 and 84.0, and a meteorite composition of either "stony", "iron", or "stony-iron".
 
 ## Part 2
 
-Write a function that determines the length of a given name based on the number of characters, excluding spaces. Using the `names` module, print 5 full names along the length of each name with the help of the new function.
+`calculate_trip.py` is the python script that calculates the total time needed for the robotic vehicle to visit the five landing sites in order from 1 to 5 based on the info from the .json file from Part 1. We assume that the vehicle starts at (16.0, 82.0) and moves at a speed of 10 km/hr, and each composition type also has a specific amount of sampling time that is added to the travel time. The distances between each landing site are calculated using the great-circle distance algorithm.
 
 ## Instructions
-
+In order to run the code located here at `my-coe332-hws/homework02`, first run the command `python3 generate_sites.py`, which will create `landing_sites.json` that contains the info about the 5 landing sites. Next, in order to run a simulation of the vehicle traveling to the sites, run `python3 calculate_trip.py`. This will output information at each leg of the trip such as time to travel from the current site to the next, and the amount of time it will take to sample the meteorite at this site. The last line of the output has an overview of the trip with the calculated total travel time.
