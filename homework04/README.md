@@ -14,7 +14,7 @@ The ISS Tracker Flask App, located in the `iss_tracker.py` script, helps with pr
 
 ### Instructions
 
-In order to run the Flask app and query through the dataset using routes, open two SSH terminals on your machine so that you can run the Flask app on one terminal and query using the Flask app with the other one. In Terminal #1, first clone this repository to your local system using `git clone git@github.com:sreshaven/my-coe332-hws.git`. Next, change your current directory using `cd my-coe322-hws/homework04/`. Now run the Flask app by running the command `flask --app iss_tracker --debug run`. In Terminal #2, query through the dataset using the routes and examples listed in [Examples](##examples).
+In order to run the Flask app and query through the dataset using routes, open two SSH terminals on your machine so that you can run the Flask app on one terminal and query using the Flask app with the other one. In Terminal #1, first clone this repository to your local system using `git clone git@github.com:sreshaven/my-coe332-hws.git`. Next, change your current directory using `cd my-coe322-hws/homework04/`. Now run the Flask app by running the command `flask --app iss_tracker --debug run`. In Terminal #2, query through the dataset using the routes and examples described in the section below.
 
 ### Examples
 While the flask app is running (in the background or in another terminal on the same machine) use these examples to guide you in querying through the dataset.
