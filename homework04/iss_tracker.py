@@ -16,7 +16,7 @@ def get_data() -> dict:
         iss_data (dict): the ISS data set as a dictionary
     """
     response = requests.get(url='https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml')
-    iss_data = xmltodict.parse(response.content)
+    iss_data = xmltodict.parse(response.text)
     # get the state vectors data 
     iss_data = iss_data['ndm']['oem']['body']['segment']['data']['stateVector']
     return iss_data
