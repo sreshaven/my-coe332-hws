@@ -10,23 +10,6 @@ response = requests.get(url='https://nasa-public-data.s3.amazonaws.com/iss-coord
 iss_data = xmltodict.parse(response.text)
 # get the state vectors data 
 iss_data = iss_data['ndm']['oem']['body']['segment']['data']['stateVector']
-with open('iss_data.json', 'w') as out:
-    json.dump(iss_data, out, indent = 2)
-
-def get_data() -> list:
-    """
-    Processes the ISS data from json into a list of dictionaries and returns the state vectors data
-    
-    Args:
-        no arguments
-    
-    Returns:
-        iss_data (list): the ISS data set as a list
-    """
-    iss_data = []
-    with open('iss_data.json', 'r') as f:
-        iss_data = json.load(f)
-    return iss_data
 
 @app.route('/', methods=['GET'])
 def index() -> list:
@@ -39,7 +22,6 @@ def index() -> list:
     Returns:
         iss_dat (list): the ISS data set as a list
     """
-    iss_data = get_data()
     return iss_data
 
 @app.route('/epochs', methods=['GET'])
@@ -53,7 +35,6 @@ def get_epochs() -> list:
     Returns:
         epochs_list (list): list of strings of the time stamps, or the epochs
     """
-    iss_data = get_data()
     offset = request.args.get('offset', str(0))
     limit = request.args.get('limit', str(len(iss_data)))
     if offset:
@@ -89,7 +70,6 @@ def get_state_vectors(epoch: str) -> dict:
     Returns:
         epoch_output (dict): the state vectors from the specified epoch, if epoch not found, will return empty dictionary, position {X, Y, Z} has units of km and the velocity vector coordinates {X_DOT, Y_DOT, Z_DOT} has units of km/s
     """
-    iss_data = get_data()
     epoch_output = {}
     for state_vec in iss_data:
         if state_vec['EPOCH'] == epoch:
@@ -128,7 +108,8 @@ def help() -> str:
     Returns:
         help_str (str):
     """
-    help_str = ""
+    help_str = "Usage: curl http://127.0.0.1:5000[ROUTE]\n\nRoutes:\n"
+    help_str += "\t{:<30} (GET) return the entire data set\n\t{:<30} (GET) return list of all Epochs in the data set\n\t{:<30} (GET) return modified list of Epochs given query parameters\n\t\t{:<30} controls how many results are returned\n\t\t{:<30} offsets the start point by an integer\n\t{:<30} (GET) return state vectors for a specific Epoch from the data set\n\t{:<30} (GET) return text about each route and their corresponding methods\n\t{:<30} (DELETE) delete all data from the dictionary object storing the data set \n\t{:<30} (POST) reload the dictionary object with data from the web\n".format("/","/epoch","/epochs?limit=int&offset=int", "limit", "offset", "/epochs/<epoch>", "/help", "/delete-data", "/post-data")
     return help_str
 
 @app.route('/delete-data', methods=['DELETE'])
@@ -142,10 +123,9 @@ def delete_data() -> str:
     Returns:
         output (str): indicates that the data was deleted from the file
     """
+    global iss_data
     iss_data = []
-    with open('iss_data.json', 'w') as out:
-        json.dump(iss_data, out, indent = 2)
-        return 'ISS Data has been deleted\n'
+    return 'ISS Data has been deleted\n'
 
 @app.route('/post-data', methods=['POST'])
 def post_data() -> str:
@@ -159,12 +139,11 @@ def post_data() -> str:
         output (str): message that indicates that the ISS data was reloaded
     """
     response = requests.get(url='https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml')
+    global iss_data 
     iss_data = xmltodict.parse(response.text)
     # get the state vectors data
     iss_data = iss_data['ndm']['oem']['body']['segment']['data']['stateVector']
-    with open('iss_data.json', 'w') as out:
-        json.dump(iss_data, out, indent = 2)
-        return 'ISS Data has been reloaded\n'
+    return 'ISS Data has been reloaded\n'
 
 
 if __name__ == '__main__':
