@@ -76,7 +76,8 @@ def get_state_vectors(epoch: str) -> dict:
             epoch_output = state_vec
             for key in epoch_output:
                 if key != 'EPOCH':
-                    epoch_output[key] = float(epoch_output[key]['#text'])
+                    if type(epoch_output[key]) == dict:
+                        epoch_output[key] = float(epoch_output[key]['#text'])
     return epoch_output
 
 @app.route('/epochs/<epoch>/speed', methods=['GET'])
