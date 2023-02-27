@@ -2,7 +2,7 @@
 
 ## Summary
 
-NASA records the trajectory of the International Space Station through position and velocity data. However, there is an abundance of this data as they measure and record at four minute intervals across 15 days. The objective of this project is to develop a Flask app (located in `iss_tracker.py`) that will help in querying and sifting through the ISS trajectory dataset. This is important because it can save time in understanding the data and the Flask app can also help with calculating additional information with the data, such as the instantaneous speed of the ISS at a certain time. 
+NASA records the trajectory of the International Space Station through position and velocity data. However, there is an abundance of this data as they measure and record at four minute intervals across 15 days. The objective of this project is to develop a Flask app (located in `iss_tracker.py`) that will help in querying and sifting through the ISS trajectory dataset. Additionally, we will be using a Dockerfile to help containerize the Flask app and make it easy to run and more portable. This assignment is important because it can save time in understanding the data and the Flask app can also help with calculating additional information with the data, such as the instantaneous speed of the ISS at a certain time. 
 
 ## About the ISS Trajectory Dataset
 
@@ -14,13 +14,15 @@ The ISS Tracker Flask App, located in the `iss_tracker.py` script, helps with pr
 
 ### Instructions
 
-In order to run the Flask app and query through the dataset using routes, open two SSH terminals on your machine so that you can run the Flask app on one terminal and query using the Flask app with the other one. There are two ways to run the Flask app. 
+In order to run the Flask app and query through the dataset using routes, open two SSH terminals on your machine so that you can run the Flask app on one terminal and query using the Flask app with the other one. There are three ways to run the Flask app. 
 
 _Method #1:_ You can build a Docker image from the Dockerfile in the repository and run a container from this image. In Terminal #1, first clone this repository to your local system using `git clone git@github.com:sreshaven/my-coe332-hws.git`. Next, change your current directory using `cd my-coe322-hws/homework05/`. Now, build the docker image locally from the Dockerfile using `docker build -t <username>/iss_tracker:hw05 .` and replace the username field with your Docker Hub username. Run this image as a container using the command `docker run -it --rm -p 5000:5000 <username>/iss_tracker:hw05` and again replace username with your username and ensure that you map the ports in the command correctly. 
 
 _Method #2:_ Another way of running the app is with a prebuilt image on Docker Hub. To use this, in Terminal #1, pull the image using `docker pull sreshaven/iss_tracker:hw05`. Now, run the image using `docker run -it --rm -p 5000:5000 sreshaven/iss_tracker:hw05`
 
-After completing one of the two methods, in Terminal #2, query through the dataset using the routes and examples described in the section below.
+_Method #3:_ You can run the Flask app directly from the script in the repository. In Terminal #1, first clone this repository to your local system using `git clone git@github.com:sreshaven/my-coe332-hws.git`. Next, change your current directory using `cd my-coe322-hws/homework05/`. Now run the Flask app by running the command `flask --app iss_tracker --debug run`.
+
+After completing one of the three methods, in Terminal #2, query through the dataset using the routes and examples described in the section below.
 
 ### Routes and Examples
 While the flask app is running (in the background or in another terminal on the same machine) use these examples to guide you in querying through the dataset.
