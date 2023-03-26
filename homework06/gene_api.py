@@ -116,5 +116,42 @@ def get_manufacturer_info(manufacturer: str) -> list:
                 manufacturer_cars.append(car_dict)
     return manufacturer_cars
 
+@app.route('/manufacturers/<manufacturer>/years', methods=['GET'])
+def manu_years(manufacturer: str) -> list:
+    """
+    Returns a list of the years where there is data for a specific manufacturer if found in the Auto Trends database for the '/manufacturers/<manufacturer>/years' route
+
+    Args:
+        manufacturer (str): the string of a Manufacturer
+
+    Returns:
+        years_list (list): list with years from the specified manufacturer, if manufacturer not found, will be empty list
+    """
+    years_list = []
+    cars_list = get_manufacturer_info(manufacturer)
+    for car in cars_list:
+        if car['Model Year'] not in years_list:
+            years_list.append(car['Model Year'])
+    return years_list
+
+@app.route('/manufacturers/<manufacturer>/years/<year>', methods=['GET'])
+def manu_years_data(manufacturer: str, year: str) -> list:
+    """
+    Returns a list for the data for the specified manufacturer and year if found in the Auto Trends database for the '/manufacturers/<manufacturer>/years/<year>' route
+
+    Args:
+        manufacturer (str): the string of a Manufacturer
+        year (str): the string of the Model Year
+
+    Returns:
+        data_list (list): list with data for the year from the specified manufacturer, if manufacturer or year not found, will be empty list
+    """
+    data_list = []
+    cars_list = get_manufacturer_info(manufacturer)
+    for car in cars_list:
+        if car['Model Year'] == year:
+            data_list.append(car)
+    return data_list
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
