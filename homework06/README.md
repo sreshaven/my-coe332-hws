@@ -6,7 +6,7 @@ The EPA, or the Environmental Protection Agency, is an executive agency of the U
 
 ## About the Auto Trends Data Set
 
-The EPA and NHTSA (National Highway Traffic Safety Administration) collects data from directly car manufacturers annually about their vehicles. The database has been maintained by the EPA since 1975 and has up to date data available for all model years since then, with preliminary data for 2022. In this data set, there is information about manufacturer and vehicle type, which are categorical values, and model year, production share, compliance and estimated real-world MPG, CO2 emissions, weight, horsepower, and many more, which are numerical values. The data is split into vehicle type categories of sedan/wagon, car SUV, truck SUV, minivan/van, and pickup and the data set also has average observations for all of the cars and all of the trucks. These values reflect arithmetic and harmonic production-weighted averages for each vehicle type. 
+The EPA and NHTSA (National Highway Traffic Safety Administration) collects data from directly car manufacturers annually about their vehicles. The database ([located here](https://www.epa.gov/automotive-trends/explore-automotive-trends-data#DetailedData)) has been maintained by the EPA since 1975 and has up to date data available for all model years since then, with preliminary data for 2022. In this data set, there is information about manufacturer and vehicle type, which are categorical values, and model year, production share, compliance and estimated real-world MPG, CO2 emissions, weight, horsepower, and many more, which are numerical values. The data is split into vehicle type categories of sedan/wagon, car SUV, truck SUV, minivan/van, and pickup and the data set also has average observations for all of the cars and all of the trucks. These values reflect arithmetic and harmonic production-weighted averages for each vehicle type. 
 
 ## Flask App
 
@@ -26,10 +26,250 @@ _Method #2_: Build the Docker image locally from the Dockerfile in the repositor
 
 3. Then, make a directory in the homework06/ directory to which the Redis database can mount a volume to by using `mkdir data`.
 
-4. Lastly, to start up the flask app in detached mode using the Docker Compose file in the repository, run `docker-compose up -d`. 
+4. Lastly, to start up the Flask app in detached mode using the Docker Compose file in the repository, run `docker-compose up -d`. 
 
-Now, you can use the Flask App to inject the dataset into a Redis database and query the dataset using the routes and examples described in the section below.
+Now, you can use the Flask app to inject the dataset into a Redis database and query the dataset using the routes and examples described in the section below.
 
 ### Routes and Examples
 
+While the Flask app is running (in the background or in another terminal on the same machine) use these examples to guide you in querying through the dataset.
 
+#### Route: /data
+Method = POST: Use this route and set the method to POST to inject the auto trends data set into the Redis database that has started up. To do this, run the command `curl -X POST http://127.0.0.1:5000/data` which will return a message like the one below:
+```
+Auto Trends data is loaded into Redis
+```
+
+Method = GET: By setting the method to GET, this route can also be used to get all of the data directly from the Redis database. To use this, run the command `curl -X GET http://127.0.0.1:5000/data` and below is an example of what the output looks like:
+```
+[
+  {
+    "2-Cycle MPG": "19.42850",
+    "4 or Fewer Gears": "0.861",
+    "5 Gears": "0.139",
+    "6 Gears": "-",
+    "7 Gears": "-",
+    "8 Gears": "-",
+    "9 or More Gears": "-",
+    "Acceleration (0-60 time in seconds)": "15.5542",
+    "Average Number of Gears": "3.5",
+    "Cylinder Deactivation": "-",
+    "Drivetrain - 4WD": "0.211",
+    "Drivetrain - Front": "0.018",
+    "Drivetrain - Rear": "0.771",
+    "Engine Displacement": "235.7915",
+    "Footprint (sq. ft.)": "-",
+    "Fuel Delivery - Carbureted": "0.948",
+    "Fuel Delivery - Gasoline Direct Injection (GDI)": "-",
+    "Fuel Delivery - Other": "0.042",
+    "Fuel Delivery - Port Fuel Injection": "-",
+    "Fuel Delivery - Throttle Body Injection": "0.010",
+    "HP/Engine Displacement": "0.548745",
+    "HP/Weight (lbs)": "0.031546",
+    "Horsepower (HP)": "118.0136",
+    "Manufacturer": "All",
+    "Model Year": "1980",
+    "Multivalve Engine": "-",
+    "Powertrain - Diesel": "0.042",
+    "Powertrain - Electric Vehicle (EV)": "-",
+...
+```
+
+Method = DELETE: You can also use this route to delete the data in the Redis database. Below is an example output for the command `curl -X DELETE http://127.0.0.1:5000/data`:
+```
+Auto Trends data has been deleted from Redis
+```
+
+#### Route: /years
+To get a list of the model years in the Auto Trends data set, use `curl http://127.0.0.1:5000/years` and below is an example of what the output would look like:
+```
+[
+  "1980",
+  "2017",
+  "1978",
+  "1979",
+  "1992",
+  "1983",
+  "2015",
+  "2011",
+  "2003",
+  "1988",
+  "1984",
+  "1987",
+  "2005",
+  "1995",
+  "2002",
+  "1977",
+  "2001",
+  "2007",
+  "1997",
+  "1999",
+  "1991",
+  "2014",
+  "1989",
+  "1981",
+  "2020",
+  "1985",
+...
+```
+
+#### Route: /years/\<year\>
+To get all of the data points from a certain model year, run `curl http://127.0.0.1:5000/years/<year>` and replace \<year\> with a model year that you want to you. Below is an example of what `curl http://127.0.0.1:5000/years/2007` looks like:
+```
+[
+  {
+    "2-Cycle MPG": "20.33974",
+    "4 or Fewer Gears": "0.979",
+    "5 Gears": "0.018",
+    "6 Gears": "0.004",
+    "7 Gears": "-",
+    "8 Gears": "-",
+    "9 or More Gears": "-",
+    "Acceleration (0-60 time in seconds)": "8.8777",
+    "Average Number of Gears": "4.0",
+    "Cylinder Deactivation": "0.309",
+    "Drivetrain - 4WD": "0.453",
+    "Drivetrain - Front": "-",
+    "Drivetrain - Rear": "0.547",
+    "Engine Displacement": "297.9739",
+    "Footprint (sq. ft.)": "-",
+    "Fuel Delivery - Carbureted": "-",
+    "Fuel Delivery - Gasoline Direct Injection (GDI)": "-",
+    "Fuel Delivery - Other": "-",
+    "Fuel Delivery - Port Fuel Injection": "1.000",
+    "Fuel Delivery - Throttle Body Injection": "-",
+    "HP/Engine Displacement": "0.926256",
+    "HP/Weight (lbs)": "0.052797",
+    "Horsepower (HP)": "276.1167",
+    "Manufacturer": "GM",
+    "Model Year": "2007",
+    "Multivalve Engine": "0.053",
+    "Powertrain - Diesel": "-",
+...
+```
+
+#### Route: /manufacturers
+To get a list of the manufacturers in the Auto Trends data set, run the command `curl http://127.0.0.1:5000/manufacturers` and an example output of this command is shown below: 
+```
+[
+  "All",
+  "Nissan",
+  "Hyundai",
+  "Tesla",
+  "Mercedes",
+  "Ford",
+  "VW",
+  "Stellantis",
+  "GM",
+  "Subaru",
+  "BMW",
+  "Toyota",
+  "Kia",
+  "Mazda",
+  "Honda"
+]
+```
+
+#### Route: /manufacturers/\<manufacturer\>
+To get all of the data associated with a specific manufacturer, use the command `curl http://127.0.0.1:5000/manufacturers/<manufacturer>` and replace \<manufacturer\> with the name of the manufacturer that you are looking for. Below is an example of what `curl http://127.0.0.1:5000/manufacturers/Toyota` looks like:
+```
+[
+  {
+    "2-Cycle MPG": "30.58902",
+    "4 or Fewer Gears": "0.770",
+    "5 Gears": "0.230",
+    "6 Gears": "-",
+    "7 Gears": "-",
+    "8 Gears": "-",
+    "9 or More Gears": "-",
+    "Acceleration (0-60 time in seconds)": "11.6225",
+    "Average Number of Gears": "4.0",
+    "Cylinder Deactivation": "-",
+    "Drivetrain - 4WD": "-",
+    "Drivetrain - Front": "0.847",
+    "Drivetrain - Rear": "0.153",
+    "Engine Displacement": "120.2838",
+    "Footprint (sq. ft.)": "-",
+    "Fuel Delivery - Carbureted": "-",
+    "Fuel Delivery - Gasoline Direct Injection (GDI)": "-",
+    "Fuel Delivery - Other": "-",
+    "Fuel Delivery - Port Fuel Injection": "1.000",
+    "Fuel Delivery - Throttle Body Injection": "-",
+    "HP/Engine Displacement": "0.999072",
+    "HP/Weight (lbs)": "0.040460",
+    "Horsepower (HP)": "120.3914",
+    "Manufacturer": "Toyota",
+    "Model Year": "1991",
+    "Multivalve Engine": "1.000",
+    "Powertrain - Diesel": "-",
+    "Powertrain - Electric Vehicle (EV)": "-",
+...
+```
+
+#### Route: /manufacturers/\<manufacturer\>/years
+To get a list of the model years for which there are data points for a specific manufacturer, you can run the command `curl http://127.0.0.1:5000/manufacturers/<manufacturer>/years` and replace \<manufacturer\> with the name of the manufacturer. Below is an example output for `curl http://127.0.0.1:5000/manufacturers/Tesla/years`:
+```
+[
+  "1979",
+  "1985",
+  "1976",
+  "2020",
+  "1989",
+  "2018",
+  "2011",
+  "1984",
+  "2017",
+  "1986",
+  "1982",
+  "2016",
+  "2008",
+  "1978",
+  "2005",
+  "2001",
+  "2009",
+  "2019",
+  "1975",
+  "1994",
+  "2021",
+  "1987",
+  "2013",
+  "1998",
+  "1992",
+  "2004",
+...
+```
+
+#### Route: /manufacturers/\<manufacturer\>/years/\<year\>
+To get the data points for a specific manufacturer during a certain year, run the command `curl http://127.0.0.1:5000/manufacturers/<manufacturer>/years/<year>` and replace \<manufacturer\> with the name of the manufacturer and \<year\> with the model year. Below is an example of what running `curl http://127.0.0.1:5000/manufacturers/Tesla/years/2019` could return:
+```
+[
+  {
+    "2-Cycle MPG": "125.19278",
+    "4 or Fewer Gears": "1.000",
+    "5 Gears": "-",
+    "6 Gears": "-",
+    "7 Gears": "-",
+    "8 Gears": "-",
+    "9 or More Gears": "-",
+    "Acceleration (0-60 time in seconds)": "4.2058",
+    "Average Number of Gears": "1.0",
+    "Cylinder Deactivation": "-",
+    "Drivetrain - 4WD": "1.000",
+    "Drivetrain - Front": "-",
+    "Drivetrain - Rear": "-",
+    "Engine Displacement": "-",
+    "Footprint (sq. ft.)": "54.80000",
+    "Fuel Delivery - Carbureted": "-",
+    "Fuel Delivery - Gasoline Direct Injection (GDI)": "-",
+    "Fuel Delivery - Other": "1.000",
+    "Fuel Delivery - Port Fuel Injection": "-",
+    "Fuel Delivery - Throttle Body Injection": "-",
+    "HP/Engine Displacement": "-",
+    "HP/Weight (lbs)": "0.094163",
+    "Horsepower (HP)": "557.9626",
+    "Manufacturer": "Tesla",
+    "Model Year": "2019",
+    "Multivalve Engine": "-",
+    "Powertrain - Diesel": "-",
+...
+```
