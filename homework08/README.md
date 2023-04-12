@@ -1,4 +1,4 @@
-# Homework 7 - In The Kubernetes
+# Homework 8 - Holidapp
 
 ## Summary
 
@@ -16,15 +16,15 @@ The Auto Trends Flask App, located in the `auto_trends_api.py`, helps with proce
 
 In order to run the Flask app and query through the dataset using routes, there are a few steps to the process:
 
-1. Clone this repository to your local system using `git clone git@github.com:sreshaven/my-coe332-hws.git` and change your current directory using `cd my-coe322-hws/homework06/` 
+1. Clone this repository to your local system using `git clone git@github.com:sreshaven/my-coe332-hws.git` and change your current directory using `cd my-coe322-hws/homework08/` 
 
 2. Next, get the `auto_trends_api` image in order to start a container for the Flask App. There are two methods to do this:
 
-_Method #1_: Pull the existing image from Docker Hub using the command: `docker pull sreshaven/auto_trends_api:hw06`
+_Method #1_: Pull the existing image from Docker Hub using the command: `docker pull sreshaven/auto_trends_api:hw08`
 
-_Method #2_: Build the Docker image locally from the Dockerfile in the repository. To do this, first download the Auto Trends dataset located here: [https://www.epa.gov/automotive-trends/explore-automotive-trends-data#DetailedData](https://www.epa.gov/automotive-trends/explore-automotive-trends-data#DetailedData). Click on the blue button that says "Export Detailed Data by Manufacturer" (which is Table A-1 on the site) to download the file to your local system. Rename this file to `auto_trends_data.csv` and move this file to the homework06/ directory. In the homework06/ directory, use `docker build -t <username>/auto_trends_api:hw06 .` and replace `<username>` with your username to build the image using the Dockerfile in the repository. In the docker-compose.yml file, change the line that says `image: sreshaven/auto_trends_api:hw06` by replacing `sreshaven` with your username.
+_Method #2_: Build the Docker image locally from the Dockerfile in the repository. To do this, first download the Auto Trends dataset located here: [https://www.epa.gov/automotive-trends/explore-automotive-trends-data#DetailedData](https://www.epa.gov/automotive-trends/explore-automotive-trends-data#DetailedData). Click on the blue button that says "Export Detailed Data by Manufacturer" (which is Table A-1 on the site) to download the file to your local system. Rename this file to `auto_trends_data.csv` and move this file to the homework08/ directory. In the homework08/ directory, use `docker build -t <username>/auto_trends_api:hw08 .` and replace `<username>` with your username to build the image using the Dockerfile in the repository. In the docker-compose.yml file, change the line that says `image: sreshaven/auto_trends_api:hw08` by replacing `sreshaven` with your username.
 
-3. Then, make a directory in the homework06/ directory to which the Redis database can mount a volume to by using `mkdir data`.
+3. Then, make a directory in the homework08/ directory to which the Redis database can mount a volume to by using `mkdir data`.
 
 4. Lastly, to start up the Flask app in detached mode using the Docker Compose file in the repository, run `docker-compose up -d`. 
 
@@ -32,7 +32,21 @@ Now, you can use the Flask app to inject the dataset into a Redis database and q
 
 ### Run Instructions - Kubernetes
 
+In order to deploy the Flask container to a Kubernetes cluster, follow the instructions below:
 
+1. First clone this repository to your system that has access to the Kubernetes API for the cluster using `git clone git@github.com:sreshaven/my-coe332-hws.git` and change your current directory using `cd my-coe322-hws/homework08/` 
+
+2. If you built your own Docker image locally following Method #2 in the "Run Instructions" steps above and to use this Docker image in a Kubernetes cluster, run `docker login` in the system that you built your Docker image on to login to your Docker Hub account and `docker push <username>/auto_trends_api:hw08` to push your built image to Docker Hub. Now in the svv346-test-flask-deployment.yml file in the repo, change the line that says `image: sreshaven/auto_trends_api:hw08` by replacing `sreshaven` with your username. 
+
+3. To set up the PVC to save the Redis data from the Flask app, change directory to the kubernetes folder by running `cd kubernetes/` and run `kubectl apply -f svv346-test-redis-pvc.yml`.
+
+4. Next, to create a deployment for the Redis database so that the desired state for Redis is always met, run `kubectl apply -f svv346-test-redis-deployment.yml`.
+
+5. The last step for the Redis set up is to start the service so that there is a persistent IP address that you can use to talk to Redis. To do this, run `kubectl apply -f svv346-test-redis-service.yml`. Now to get the IP address for this service, run `kubectl get services` and copy the IP address for the redis service. Now in the `svv346-test-flask-deployment.yml` file, change the line that says `value: 10.233.15.94` by replacing `10.233.15.94` with the copied IP address for your service.
+
+6. To set up the deployment for the Flask app on the Kubernetes cluster, run `kubectl apply -f svv346-test-flask-deployment.yml`.
+
+7. Lastly, to get a persistent IP address for the Flask app with a service, run `kubectl apply -f svv346-test-flask-service.yml`. To use this IP address to run the Flask app routes, run `kubectl get services` and copy the IP address for the flask service. To use the Flask app routes, exec into a Python debug container and use the examples below to guide you. When running curl commands, replace `127.0.0.1` with the IP address for your Flask service.
 
 ### Routes and Examples
 
@@ -277,3 +291,22 @@ To get the data points for a specific manufacturer during a certain year, run th
     "Powertrain - Diesel": "-",
 ...
 ```
+
+#### Route: /image
+Method = POST: Use this route to create and load an image based on the Auto Trends Dataset into Redis. This image is a graph of the average CO2 emissions per year plotted over time. To load the image into Redis, run `curl -X POST http://127.0.0.1:5000/image` which will return a message like the one below:
+```
+Auto Trends data image is loaded into Redis
+```
+
+Method = GET: This route can be used also be used to get the image locally if it is present in the database by changing the method to GET. To do this, run `curl -X GET http://127.0.0.1:5000/image --output filename.png` and replace `filename` with a name that you want. This will return the image of the graph in redis to the directory you are currently in and will return an output like below:
+```
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 26827  100 26827    0     0  3274k      0 --:--:-- --:--:-- --:--:-- 3274k
+```
+
+Method = DELETE: The DELETE method for this route will delete the image from the Redis database. To do this, run `curl -X DELETE http://127.0.0.1:5000/image` and below is an example of the output message is the image is found in the database and deleted:
+```
+Auto Trends data image has been deleted from Redis
+```
+
