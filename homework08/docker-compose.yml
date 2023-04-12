@@ -20,3 +20,5 @@ services:
             - 5000:5000
         environment:
             - REDIS_IP=redis-db
+        volumes:
+            - ./data:/data

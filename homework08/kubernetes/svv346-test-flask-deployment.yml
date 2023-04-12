@@ -27,3 +27,10 @@ spec:
           ports:
           - name: http
             containerPort: 5000
+          volumeMounts:
+          - name: svv346-test-auto-data
+            mountPath: "/data"
+       volumes:
+       - name: svv346-test-auto-data
+         persistentVolumeClaim:
+           claimName: svv346-test-auto-data

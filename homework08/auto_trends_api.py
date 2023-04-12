@@ -1,8 +1,10 @@
-from flask import Flask, request
+from flask import Flask, request, send_file
 import os
 import requests
 import redis
 import csv
+import matplotlib.pyplot as plt
+import numpy as np
 
 app = Flask(__name__)
 
@@ -154,6 +156,61 @@ def manu_years_data(manufacturer: str, year: str) -> list:
         if car['Model Year'] == year:
             data_list.append(car)
     return data_list
+
+@app.route('/image', methods=['GET', 'POST', 'DELETE'])
+def image_func() -> bytes:
+    """
+    If method is POST, loads a simple plot of the auto trends data into redis and returns message
+    If method is GET, returns image from redis
+    If method is DELETE, clears the image in redis and returns message
+
+    Args:
+        no arguments
+
+    Returns:
+        auto_img (bytes): (if method is GET) bytes object of the image for the data set
+    """
+    if request.method == 'POST':
+        if len(rd.keys()) == 0:
+            return 'Auto Trends data not loaded in Redis yet\n'
+        else:
+            cars_list = get_manufacturer_info('All')
+            years = []
+            co2 = []
+            for car in cars_list:
+                if car['Vehicle Type'] == 'All':
+                    if car['Model Year'].isdigit():
+                        years.append(int(car['Model Year']))
+                    else:
+                        years.append(2022)
+                    co2.append(float(car['Real-World CO2 (g/mi)']))
+            plt.scatter(years, co2)
+            plt.title('Average Vehicle CO2 Emissions from 1975-2022')
+            plt.ylabel('Real-World CO2 (g/mi)')
+            plt.xlabel('Year')
+            plt.savefig('./data/co2_graph.png')
+            plt.show()
+            file_bytes = open('./data/co2_graph.png', 'rb').read()
+            rd2.set('image', file_bytes)
+            return 'Auto Trends data image is loaded into Redis\n'
+    elif request.method == 'GET':
+        if b'image' not in rd2.keys():
+            return 'Image not found or has not been loaded yet\n'
+        else:
+            path = './data/getimage.png'
+            with open(path, 'wb') as f:
+                f.write(rd2.get('image'))
+            return send_file(path, mimetype='image/png', as_attachment=True)
+    elif request.method == 'DELETE':
+        if b'image' not in rd2.keys():
+            return 'Image not found or has not been loaded yet\n'
+        else:
+            rd2.delete('image')
+            return 'Auto Trends data image has been deleted from Redis\n'
+    else:
+        return 'The method you tried does not work\n'
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
