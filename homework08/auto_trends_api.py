@@ -188,16 +188,16 @@ def image_func() -> bytes:
             plt.title('Average Vehicle CO2 Emissions from 1975-2022')
             plt.ylabel('Real-World CO2 (g/mi)')
             plt.xlabel('Year')
-            plt.savefig('./data/co2_graph.png')
+            plt.savefig('./co2_graph.png')
             plt.show()
-            file_bytes = open('./data/co2_graph.png', 'rb').read()
+            file_bytes = open('./co2_graph.png', 'rb').read()
             rd2.set('image', file_bytes)
             return 'Auto Trends data image is loaded into Redis\n'
     elif request.method == 'GET':
         if b'image' not in rd2.keys():
             return 'Image not found or has not been loaded yet\n'
         else:
-            path = './data/getimage.png'
+            path = './getimage.png'
             with open(path, 'wb') as f:
                 f.write(rd2.get('image'))
             return send_file(path, mimetype='image/png', as_attachment=True)
